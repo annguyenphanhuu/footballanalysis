@@ -11,10 +11,11 @@ from speed_and_distance_estimator import SpeedAndDistance_Estimator
 
 def main():
     # Read Video
-    video_frames = read_video('input_videos/video.mp4')
+    video_frames = read_video('input_videos/video.avi')
+    first_frame = video_frames[0]
 
     # Initialize Tracker
-    tracker = Tracker('models/best.pt')
+    tracker = Tracker('models/yolov10.pt')
 
     tracks = tracker.get_object_tracks(video_frames,
                                        read_from_stub=True,
@@ -31,7 +32,7 @@ def main():
 
 
     # View Trasnformer
-    view_transformer = ViewTransformer()
+    view_transformer = ViewTransformer(first_frame)
     view_transformer.add_transformed_position_to_tracks(tracks)
 
     # Interpolate Ball Positions
@@ -57,7 +58,8 @@ def main():
     
     # Assign Ball Aquisition
     player_assigner = PlayerBallAssigner()
-    team_ball_control= []
+    team_ball_control = []
+
     for frame_num, player_track in enumerate(tracks['players']):
         ball_bbox = tracks['ball'][frame_num][1]['bbox']
         assigned_player = player_assigner.assign_ball_to_player(player_track, ball_bbox)
@@ -66,8 +68,11 @@ def main():
             tracks['players'][frame_num][assigned_player]['has_ball'] = True
             team_ball_control.append(tracks['players'][frame_num][assigned_player]['team'])
         else:
-            team_ball_control.append(team_ball_control[-1])
-    team_ball_control= np.array(team_ball_control)
+            if team_ball_control:  # Check if the list is not empty
+                team_ball_control.append(team_ball_control[-1])
+            else:
+                team_ball_control.append(None)  # Or some other default value
+    team_ball_control = np.array(team_ball_control)
 
 
     # Draw output 
@@ -81,7 +86,7 @@ def main():
     speed_and_distance_estimator.draw_speed_and_distance(output_video_frames,tracks)
 
     # Save video
-    save_video(output_video_frames, 'output_videos/output_video.avi')
+    save_video(output_video_frames, 'output_videos/output_video_deepsort.avi')
 
 if __name__ == '__main__':
     main()

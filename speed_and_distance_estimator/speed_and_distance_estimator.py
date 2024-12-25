@@ -30,7 +30,10 @@ class SpeedAndDistance_Estimator():
                     
                     distance_covered = measure_distance(start_position,end_position)
                     time_elapsed = (last_frame-frame_num)/self.frame_rate
-                    speed_meteres_per_second = distance_covered/time_elapsed
+                    if time_elapsed == 0:
+                        speed_meteres_per_second = 0  # Or set to a default value
+                    else:
+                        speed_meteres_per_second = distance_covered / time_elapsed
                     speed_km_per_hour = speed_meteres_per_second*3.6
 
                     if object not in total_distance:

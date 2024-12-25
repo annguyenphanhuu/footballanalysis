@@ -13,7 +13,7 @@ from utils import get_center_of_bbox, get_bbox_width, get_foot_position
 class Tracker:
     def __init__(self, model_path):
         self.model = YOLO(model_path) 
-        self.tracker = sv.ByteTrack(track_activation_threshold = 0.4, minimum_matching_threshold = 0.95, lost_track_buffer = 200)
+        self.tracker = sv.ByteTrack()
 
     def add_position_to_tracks(self, tracks):
         for object, object_tracks in tracks.items():
@@ -41,7 +41,7 @@ class Tracker:
         batch_size = 20
         detections = []
         for i in range(0, len(frames), batch_size):
-            detections_batch = self.model.predict(frames[i:i + batch_size], conf=0.4)
+            detections_batch = self.model.predict(frames[i:i + batch_size], conf=0.1)
             detections += detections_batch
         return detections
 
@@ -175,12 +175,8 @@ class Tracker:
         # Get the number of time each team had ball control
         team_1_num_frames = team_ball_control_till_frame[team_ball_control_till_frame==1].shape[0]
         team_2_num_frames = team_ball_control_till_frame[team_ball_control_till_frame==2].shape[0]
-        if team_1_num_frames + team_2_num_frames > 0:
-            team_1 = team_1_num_frames / (team_1_num_frames + team_2_num_frames)
-            team_2 = team_2_num_frames / (team_1_num_frames + team_2_num_frames)
-        else:
-            team_1 = 0
-            team_2 = 0
+        team_1 = team_1_num_frames/(team_1_num_frames+team_2_num_frames)
+        team_2 = team_2_num_frames/(team_1_num_frames+team_2_num_frames)
 
         cv2.putText(frame, f"Team 1 Ball Control: {team_1*100:.2f}%",(1400,900), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3)
         cv2.putText(frame, f"Team 2 Ball Control: {team_2*100:.2f}%",(1400,950), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 3)
