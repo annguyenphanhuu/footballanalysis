@@ -39,6 +39,15 @@ Standardizing the area.
 - **Speed and Distance Calculation**: Measures the speed and total distance covered by tracked objects.
 - **Frame Annotations**: Displays speed and distance on the video frames, making it easy to visualize the motion analysis.
 
+### Known Issues
+Below are some unresolved issues:
+1. When a player leaves the frame for a few seconds, they may be assigned a different ID upon reappearing.
+2. During player collisions, players may be assigned different IDs due to the confusion in tracking.
+#### Future Solution
+We plan to address these issues by replacing the current system with DEEPSORT for improved tracking accuracy.
+
+
+
 
 
 
